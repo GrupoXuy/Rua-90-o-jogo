@@ -77,11 +77,14 @@ try {
       assert.ok(wheel.y >= svgBox.y - 1 && wheel.y + wheel.height <= svgBox.y + svgBox.height + 1, viewport.name + ": roda cortada na área visível do carro");
     }
     const modelDetails = [];
+    const raceSilhouettes = [];
     for (const index of [0, 1, 2, 3, 4]) {
       await page.locator('[data-car="' + index + '"]').click();
       modelDetails.push(await page.locator("#headlightsPath").getAttribute("d"));
+      raceSilhouettes.push(await page.locator("#roadBodyPath").getAttribute("d"));
     }
     assert.equal(new Set(modelDetails).size, 5, viewport.name + ": modelos devem ter desenho de faróis próprio");
+    assert.equal(new Set(raceSilhouettes).size, 5, viewport.name + ": modelos devem ter silhuetas próprias durante a corrida");
     await page.locator('[data-car="1"]').click();
     assert.equal((await page.locator("#selectedName").textContent()).trim(), "OPALA", viewport.name + ": seleção do carro não atualizou o modelo");
     await page.screenshot({ path: path.join(outputDir, viewport.name + "-garage.png") });
