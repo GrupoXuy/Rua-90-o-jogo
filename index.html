@@ -65,7 +65,7 @@ button{font:inherit;cursor:pointer}button:focus-visible{outline:2px solid var(--
 .mobile-controls button{width:60px;height:56px;background:#101514dd;border:1px solid #ffffff40;border-radius:12px;color:white;font-size:22px;touch-action:none}
 .toast{position:absolute;left:50%;top:25%;transform:translateX(-50%);background:#111b;color:var(--lime);padding:12px 16px;border:1px solid #d7f36a66;border-radius:8px;font-size:11px;letter-spacing:1px;display:none;z-index:8}.toast.show{display:block}
 .back-home{display:none;position:absolute;right:22px;bottom:20px;z-index:6;color:#b3beb5;background:#101514a8;border:1px solid var(--line);border-radius:6px;padding:9px 11px;font-size:9px;letter-spacing:1px}.garage .back-home{display:block}
-.playing .layout{grid-template-columns:1fr;padding:0;height:100%;align-items:stretch}.playing .copy{display:none}.playing .stage{height:100%;min-height:0;position:absolute;inset:0;z-index:1}
+.playing .layout{display:grid;grid-template-columns:1fr;padding:0;height:100%;align-items:stretch}.playing .copy{display:none}.playing .stage{height:100%;min-height:0;position:absolute;inset:0;z-index:1}
 .playing .garage-stage{display:none}.playing .road{display:block;width:min(76%,560px);height:100%;min-height:0;max-height:100%}
 .playing .panel{top:90px;right:18px}.playing .hud{bottom:94px;left:18px}.playing .mobile-controls{display:flex}.playing .top{position:absolute;z-index:15;padding:18px 24px}.playing .sound{background:#101514d9}.playing .back-home{display:none}
 @media(max-width:900px){.home-screen{padding-left:5vw;padding-right:5vw;gap:2vw}.hero-badge{right:-2%;bottom:8%}.layout{grid-template-columns:minmax(290px,390px) 1fr;padding-left:4vw;padding-right:4vw}.stage{height:65vh}.garage-car{width:96%}.road{width:84%}}
