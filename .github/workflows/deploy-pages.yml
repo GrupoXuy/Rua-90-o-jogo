@@ -1,7 +1,9 @@
-name: Deploy Rua 90 to GitHub Pages
+name: Rua 90 — validação e publicação
 
 on:
   push:
+    branches: ["**"]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -11,25 +13,53 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: rua90-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  validate:
+    name: Validar HTML e JavaScript
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-      - name: Validate static entry point
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validar entrypoint e lógica
+        run: node scripts/validate.mjs
+      - name: Instalar Playwright e Chromium
         run: |
-          test -s index.html
-          grep -qi '<!doctype html' index.html
-          grep -q 'RUA 90' index.html
+          npm install --prefix "$RUNNER_TEMP/rua90-browser" --no-audit --no-fund playwright
+          "$RUNNER_TEMP/rua90-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Executar testes no navegador em 3 resoluções
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/rua90-browser
+        run: node scripts/browser-check.mjs
+      - name: Anexar capturas de revisão visual
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rua90-browser-review
+          path: artifacts/browser-review
+          if-no-files-found: ignore
+
+  deploy:
+    name: Publicar no GitHub Pages
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' || github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
