@@ -71,7 +71,7 @@ try {
       return { x: r.left, y: r.top, width: r.width, height: r.height };
     }));
     assert.ok(svgBox, viewport.name + ": SVG da garagem sem bounding box");
-    assert.equal(wheelStats.length, 3, viewport.name + ": rodas/rins da garagem não renderizados");
+    assert.equal(wheelStats.length, 2, viewport.name + ": duas rodas laterais da garagem devem estar visíveis");
     for (const wheel of wheelStats) {
       assert.ok(wheel.x >= svgBox.x - 1 && wheel.x + wheel.width <= svgBox.x + svgBox.width + 1, viewport.name + ": roda fora da área visível do carro");
       assert.ok(wheel.y >= svgBox.y - 1 && wheel.y + wheel.height <= svgBox.y + svgBox.height + 1, viewport.name + ": roda cortada na área visível do carro");
