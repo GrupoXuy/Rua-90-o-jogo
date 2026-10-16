@@ -29,6 +29,21 @@ jobs:
           node-version: "22"
       - name: Validar entrypoint e lógica
         run: node scripts/validate.mjs
+      - name: Instalar Playwright e Chromium
+        run: |
+          npm install --prefix "$RUNNER_TEMP/rua90-browser" --no-audit --no-fund playwright
+          "$RUNNER_TEMP/rua90-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Executar testes no navegador em 3 resoluções
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/rua90-browser
+        run: node scripts/browser-check.mjs
+      - name: Anexar capturas de revisão visual
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rua90-browser-review
+          path: artifacts/browser-review
+          if-no-files-found: ignore
 
   deploy:
     name: Publicar no GitHub Pages
