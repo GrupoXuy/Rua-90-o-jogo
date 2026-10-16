@@ -66,7 +66,7 @@ try {
     const carBox = await page.locator("#garageCar").boundingBox();
     assert.ok(stageBox && carBox, viewport.name + ": garagem ou carro sem geometria");
     assert.ok(carBox.width > 80 && carBox.height > 80, viewport.name + ": carro demasiado pequeno");
-    assert.ok(carBox.left >= stageBox.left - 3 && carBox.right <= stageBox.right + 3, viewport.name + ": carro cortado horizontalmente na garagem");
+    assert.ok(carBox.x >= stageBox.x - 3 && carBox.x + carBox.width <= stageBox.x + stageBox.width + 3, viewport.name + ": carro cortado horizontalmente na garagem");
     const wheelStats = await page.locator("#garageCar .wheel").evaluateAll(nodes => nodes.map(n => {
       const r = n.getBBox();
       return { x: r.x, y: r.y, width: r.width, height: r.height };
@@ -101,8 +101,8 @@ try {
     const roadAfter = await page.locator("#road").boundingBox();
     const carAfter = await page.locator("#hero").boundingBox();
     assert.ok(roadAfter && carAfter, viewport.name + ": não foi possível medir carro/pista");
-    assert.ok(carAfter.left >= roadAfter.left + 1, viewport.name + ": carro saiu pelo lado esquerdo da pista");
-    assert.ok(carAfter.right <= roadAfter.right - 1, viewport.name + ": carro saiu pelo lado direito da pista");
+    assert.ok(carAfter.x >= roadAfter.x + 1, viewport.name + ": carro saiu pelo lado esquerdo da pista");
+    assert.ok(carAfter.x + carAfter.width <= roadAfter.x + roadAfter.width - 1, viewport.name + ": carro saiu pelo lado direito da pista");
     await page.screenshot({ path: path.join(outputDir, viewport.name + "-race.png") });
     report.push({ viewport: viewport.name, result: "PASS", garage: "in-frame", gameplay: "car within road bounds", wheels: wheelStats.length });
     await page.close();
