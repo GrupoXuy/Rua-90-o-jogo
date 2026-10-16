@@ -87,10 +87,14 @@ try {
     assert.equal(new Set(raceSilhouettes).size, 5, viewport.name + ": modelos devem ter silhuetas próprias durante a corrida");
     await page.locator('[data-car="1"]').click();
     assert.equal((await page.locator("#selectedName").textContent()).trim(), "OPALA", viewport.name + ": seleção do carro não atualizou o modelo");
+    assert.equal(await page.locator("#racePanel").isVisible(), false, viewport.name + ": HUD de corrida não deve aparecer na garagem");
+    assert.equal(await page.locator("#hud").isVisible(), false, viewport.name + ": texto de gameplay não deve aparecer na garagem");
     await page.screenshot({ path: path.join(outputDir, viewport.name + "-garage.png") });
 
     await page.locator("#start").click();
     await page.waitForFunction(() => document.querySelector("#app")?.classList.contains("playing"));
+    assert.equal(await page.locator("#racePanel").isVisible(), true, viewport.name + ": painel de corrida deve aparecer no gameplay");
+    assert.equal(await page.locator("#hud").isVisible(), true, viewport.name + ": HUD deve aparecer no gameplay");
     await page.waitForTimeout(100);
     const road = await page.locator("#road").boundingBox();
     const carBefore = await page.locator("#hero").boundingBox();
