@@ -65,18 +65,16 @@ try {
     assert.ok(stageBox && carBox, viewport.name + ": garagem ou carro sem geometria");
     assert.ok(carBox.width > 80 && carBox.height > 80, viewport.name + ": carro demasiado pequeno");
     assert.ok(carBox.x >= stageBox.x - 3 && carBox.x + carBox.width <= stageBox.x + stageBox.width + 3, viewport.name + ": carro cortado horizontalmente na garagem");
-    const svgViewBox = await page.locator("#garageCar").evaluate(svg => ({
-      x: svg.viewBox.baseVal.x, y: svg.viewBox.baseVal.y,
-      width: svg.viewBox.baseVal.width, height: svg.viewBox.baseVal.height
-    }));
+    const svgBox = await page.locator("#garageCar").boundingBox();
     const wheelStats = await page.locator("#garageCar .wheel").evaluateAll(nodes => nodes.map(n => {
-      const r = n.getBBox();
-      return { x: r.x, y: r.y, width: r.width, height: r.height };
+      const r = n.getBoundingClientRect();
+      return { x: r.left, y: r.top, width: r.width, height: r.height };
     }));
+    assert.ok(svgBox, viewport.name + ": SVG da garagem sem bounding box");
     assert.equal(wheelStats.length, 3, viewport.name + ": rodas/rins da garagem não renderizados");
     for (const wheel of wheelStats) {
-      assert.ok(wheel.x >= svgViewBox.x && wheel.x + wheel.width <= svgViewBox.x + svgViewBox.width, viewport.name + ": roda fora da área SVG");
-      assert.ok(wheel.y >= svgViewBox.y && wheel.y + wheel.height <= svgViewBox.y + svgViewBox.height, viewport.name + ": roda cortada na área SVG");
+      assert.ok(wheel.x >= svgBox.x - 1 && wheel.x + wheel.width <= svgBox.x + svgBox.width + 1, viewport.name + ": roda fora da área visível do carro");
+      assert.ok(wheel.y >= svgBox.y - 1 && wheel.y + wheel.height <= svgBox.y + svgBox.height + 1, viewport.name + ": roda cortada na área visível do carro");
     }
     const modelDetails = [];
     for (const index of [0, 1, 2, 3, 4]) {
