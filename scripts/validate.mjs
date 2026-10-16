@@ -22,4 +22,5 @@ for (const id of ["enterGarage","quickStart","backToHome","leaveGarage","start",
 }
 assert.match(html, /@media\(max-width:680px\)/, "Layout móvel ausente");
 assert.match(html, /\.carart\{[^}]*left:50%[^}]*transform:translateX\(-50%\)/, "Carro da pista deve centralizar pelo próprio eixo");
+assert.match(html, /\.playing \.stage\{inset:0;height:100%;opacity:1;pointer-events:auto\}/, "Controles móveis devem receber eventos durante a corrida");
 console.log("Rua 90: estrutura HTML, IDs, responsividade e sintaxe JavaScript validados.");
