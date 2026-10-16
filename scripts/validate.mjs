@@ -8,7 +8,7 @@ assert.match(html, /id="homeScreen"/, "menu inicial separado deve existir");
 assert.match(html, /id="garageStage"/, "garagem deve existir");
 assert.match(html, /id="road"/, "pista deve existir");
 assert.match(html, /id="bodyPath"/, "carro da garagem precisa de silhueta dinâmica");
-assert.match(html, /viewBox="120 55 360 310"/, "Vista da garagem deve enquadrar o carro de forma compacta");
+assert.match(html, /viewBox="110 50 380 325"/, "Vista da garagem deve enquadrar o carro de forma compacta");
 for (const id of ["windshieldPath","sideWindowPath","headlightsPath","grilleDark","grilleChrome","hoodLines"]) assert.match(html, new RegExp('id="' + id + '"' ), "Detalhe SVG ausente: " + id);
 for (const mode of ["survival", "time", "traffic"]) {
   assert.match(html, new RegExp('data-mode="' + mode + '"'), "Modo ausente: " + mode);
