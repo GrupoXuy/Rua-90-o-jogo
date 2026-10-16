@@ -111,6 +111,15 @@ try {
     assert.ok(roadAfter && carAfter, viewport.name + ": não foi possível medir carro/pista");
     assert.ok(carAfter.x >= roadAfter.x + 1, viewport.name + ": carro saiu pelo lado esquerdo da pista");
     assert.ok(carAfter.x + carAfter.width <= roadAfter.x + roadAfter.width - 1, viewport.name + ": carro saiu pelo lado direito da pista");
+    const gameBody = await page.locator("#hero .body-paint").boundingBox();
+    const gameWheels = await page.locator("#hero .tire").evaluateAll(nodes => nodes.map(n => {
+      const r = n.getBoundingClientRect();
+      return { x: r.left, width: r.width };
+    }));
+    assert.ok(gameBody && gameWheels.length === 4, viewport.name + ": rodas de gameplay ausentes");
+    for (const wheel of gameWheels) {
+      assert.ok(wheel.x >= gameBody.x + 1 && wheel.x + wheel.width <= gameBody.x + gameBody.width - 1, viewport.name + ": roda ultrapassa a silhueta da carroceria em gameplay");
+    }
     await page.screenshot({ path: path.join(outputDir, viewport.name + "-race.png") });
     report.push({ viewport: viewport.name, result: "PASS", garage: "in-frame", gameplay: "car within road bounds", wheels: wheelStats.length });
     await page.close();
