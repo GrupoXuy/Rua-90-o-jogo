@@ -109,6 +109,7 @@ try {
     const roadAfter = await page.locator("#road").boundingBox();
     const carAfter = await page.locator("#hero").boundingBox();
     assert.ok(roadAfter && carAfter, viewport.name + ": não foi possível medir carro/pista");
+    assert.ok(carAfter.x > carBefore.x + 1, viewport.name + ": comando de direção não moveu o carro");
     assert.ok(carAfter.x >= roadAfter.x + 1, viewport.name + ": carro saiu pelo lado esquerdo da pista");
     assert.ok(carAfter.x + carAfter.width <= roadAfter.x + roadAfter.width - 1, viewport.name + ": carro saiu pelo lado direito da pista");
     const gameBody = await page.locator("#hero .body-paint").boundingBox();
