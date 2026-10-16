@@ -58,8 +58,6 @@ try {
     await page.getByRole("button", { name: /ENTRAR NA GARAGEM/i }).click();
     await page.waitForFunction(() => document.querySelector("#app")?.classList.contains("garage"));
     assert.equal(await page.locator("#garageStage").isVisible(), true, viewport.name + ": garagem não está visível");
-    await page.locator('[data-car="1"]').click();
-    assert.equal((await page.locator("#selectedName").textContent()).trim(), "OPALA", viewport.name + ": seleção do carro não atualizou o modelo");
     await page.locator('[data-color="2"]').click();
     assert.equal((await page.locator("#paintName").textContent()).trim(), "PINTURA · AZUL", viewport.name + ": pintura não atualizou");
     const stageBox = await page.locator("#garageStage").boundingBox();
@@ -67,15 +65,27 @@ try {
     assert.ok(stageBox && carBox, viewport.name + ": garagem ou carro sem geometria");
     assert.ok(carBox.width > 80 && carBox.height > 80, viewport.name + ": carro demasiado pequeno");
     assert.ok(carBox.x >= stageBox.x - 3 && carBox.x + carBox.width <= stageBox.x + stageBox.width + 3, viewport.name + ": carro cortado horizontalmente na garagem");
+    const svgViewBox = await page.locator("#garageCar").evaluate(svg => ({
+      x: svg.viewBox.baseVal.x, y: svg.viewBox.baseVal.y,
+      width: svg.viewBox.baseVal.width, height: svg.viewBox.baseVal.height
+    }));
     const wheelStats = await page.locator("#garageCar .wheel").evaluateAll(nodes => nodes.map(n => {
       const r = n.getBBox();
       return { x: r.x, y: r.y, width: r.width, height: r.height };
     }));
     assert.equal(wheelStats.length, 3, viewport.name + ": rodas/rins da garagem não renderizados");
     for (const wheel of wheelStats) {
-      assert.ok(wheel.x >= 0 && wheel.x + wheel.width <= 560, viewport.name + ": roda fora da área SVG");
-      assert.ok(wheel.y >= 0 && wheel.y + wheel.height <= 400, viewport.name + ": roda cortada na área SVG");
+      assert.ok(wheel.x >= svgViewBox.x && wheel.x + wheel.width <= svgViewBox.x + svgViewBox.width, viewport.name + ": roda fora da área SVG");
+      assert.ok(wheel.y >= svgViewBox.y && wheel.y + wheel.height <= svgViewBox.y + svgViewBox.height, viewport.name + ": roda cortada na área SVG");
     }
+    const modelDetails = [];
+    for (const index of [0, 1, 2, 3, 4]) {
+      await page.locator('[data-car="' + index + '"]').click();
+      modelDetails.push(await page.locator("#headlightsPath").getAttribute("d"));
+    }
+    assert.equal(new Set(modelDetails).size, 5, viewport.name + ": modelos devem ter desenho de faróis próprio");
+    await page.locator('[data-car="1"]').click();
+    assert.equal((await page.locator("#selectedName").textContent()).trim(), "OPALA", viewport.name + ": seleção do carro não atualizou o modelo");
     await page.screenshot({ path: path.join(outputDir, viewport.name + "-garage.png") });
 
     await page.locator("#start").click();
