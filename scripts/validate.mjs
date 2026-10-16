@@ -10,6 +10,7 @@ assert.match(html, /id="road"/, "pista deve existir");
 assert.match(html, /id="bodyPath"/, "carro da garagem precisa de silhueta dinâmica");
 assert.match(html, /viewBox="110 50 380 325"/, "Vista da garagem deve enquadrar o carro de forma compacta");
 for (const id of ["windshieldPath","sideWindowPath","headlightsPath","grilleDark","grilleChrome","hoodLines"]) assert.match(html, new RegExp('id="' + id + '"' ), "Detalhe SVG ausente: " + id);
+for (const id of ["roadBodyPath","roadFrontGlassPath","roadRearGlassPath","roadContours","roadPanels","roadLights","roadTailLights"]) assert.match(html, new RegExp('id="' + id + '"' ), "Detalhe de gameplay ausente: " + id);
 for (const mode of ["survival", "time", "traffic"]) {
   assert.match(html, new RegExp('data-mode="' + mode + '"'), "Modo ausente: " + mode);
 }
