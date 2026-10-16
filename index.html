@@ -61,14 +61,14 @@ button{font:inherit;cursor:pointer}button:focus-visible{outline:2px solid var(--
 .traffic.one{animation:traffic 3.2s linear infinite}.traffic.two{left:73%;background:#e8e4d5;animation:traffic 4s 1.1s linear infinite}@keyframes traffic{to{top:115%}}
 .panel{position:absolute;right:2%;top:5%;border:1px solid #ffffff20;background:#101514d9;backdrop-filter:blur(10px);padding:14px 17px;border-radius:8px;min-width:145px;z-index:5}
 .panel small{display:block;color:var(--muted);font-size:9px;letter-spacing:1.7px}.panel strong{display:block;font-size:25px;margin-top:5px;font-variant-numeric:tabular-nums}
-.hud{position:absolute;left:2%;bottom:5%;font-size:9px;letter-spacing:1.7px;color:#b7c0b8;z-index:5}.mobile-controls{display:none;position:absolute;bottom:15px;left:0;right:0;justify-content:space-between;padding:0 16px;z-index:8}
+.panel,.hud{display:none}.hud{position:absolute;left:2%;bottom:5%;font-size:9px;letter-spacing:1.7px;color:#b7c0b8;z-index:5}.mobile-controls{display:none;position:absolute;bottom:15px;left:0;right:0;justify-content:space-between;padding:0 16px;z-index:8}
 .mobile-controls button{width:60px;height:56px;background:#101514dd;border:1px solid #ffffff40;border-radius:12px;color:white;font-size:22px;touch-action:none}
 .toast{position:absolute;left:50%;top:25%;transform:translateX(-50%);background:#111b;color:var(--lime);padding:12px 16px;border:1px solid #d7f36a66;border-radius:8px;font-size:11px;letter-spacing:1px;display:none;z-index:8}.toast.show{display:block}
 .back-home{display:none;position:absolute;right:22px;bottom:20px;z-index:6;color:#b3beb5;background:#101514a8;border:1px solid var(--line);border-radius:6px;padding:9px 11px;font-size:9px;letter-spacing:1px}.garage .back-home{display:block}
 .playing .layout{display:grid;grid-template-columns:1fr;padding:0;height:100%;align-items:stretch}.playing .copy{display:none}.playing .stage{height:100%;min-height:0;position:absolute;inset:0;z-index:1}
 .playing .garage-stage{display:none}.playing .road{display:block;width:min(76%,560px);height:100%;min-height:0;max-height:100%}
-.playing .panel{top:90px;right:18px}.playing .hud{bottom:94px;left:18px}.playing .mobile-controls{display:flex}.playing .top{position:absolute;z-index:15;padding:18px 24px}.playing .sound{background:#101514d9}.playing .back-home{display:none}
-@media(max-width:900px){.home-screen{padding-left:5vw;padding-right:5vw;gap:2vw}.hero-badge{right:-2%;bottom:8%}.layout{grid-template-columns:minmax(290px,390px) 1fr;padding-left:4vw;padding-right:4vw}.stage{height:65vh}.garage-car{width:86%;height:auto;max-height:82%}.road{width:84%}}
+.playing .panel{display:block;top:90px;right:18px}.playing .hud{display:block;bottom:94px;left:18px}.playing .mobile-controls{display:flex}.playing .top{position:absolute;z-index:15;padding:18px 24px}.playing .sound{background:#101514d9}.playing .back-home{display:none}
+@media(max-width:900px){.home-screen{padding-left:5vw;padding-right:5vw;gap:2vw}.hero-badge{right:-2%;bottom:8%}.layout{grid-template-columns:minmax(290px,390px) 1fr;padding-left:4vw;padding-right:4vw}.stage{height:65vh}.garage-car{width:92%;height:auto;max-height:82%}.road{width:84%}}
 @media(max-width:680px){
  .shell{min-height:520px}.top{padding:16px 20px}.brand{font-size:22px}.tag{font-size:8px}
  .home-screen{padding:90px 22px 24px;grid-template-columns:1fr;align-content:center;gap:0}.home h1{font-size:clamp(68px,18vw,105px);margin:18px 0 20px}.intro{font-size:12px;max-width:290px}
@@ -78,7 +78,7 @@ button{font:inherit;cursor:pointer}button:focus-visible{outline:2px solid var(--
  .copy h2{font-size:36px;margin:10px 0}.subcopy{font-size:11px;margin-bottom:10px}.label{margin:15px 0 8px;font-size:8px}.car-choice{padding:8px 9px;font-size:9px}
  .colors{margin-top:11px}.swatch{width:20px;height:20px}.actions{margin-top:15px}.actions .primary{padding:12px 13px}.actions .secondary{padding:11px 12px}.hint{margin-top:9px;font-size:8px}
  .stage{position:absolute;inset:52% 0 2%;height:auto;min-height:0;z-index:0;opacity:.94;pointer-events:none}.garage-stage{min-height:0;height:100%;border:0;background:linear-gradient(0deg,#101514 0%,#10151400 45%)}
- .garage-heading{display:none;left:20px;top:10px}.garage-heading strong{font-size:12px}.garage-car{width:94%;height:auto;max-height:92%;transform:perspective(700px) rotateY(-5deg) rotateZ(-2deg) scale(1.02)}
+ .garage-heading{display:none;left:20px;top:10px}.garage-heading strong{font-size:12px}.garage-car{width:84%;height:auto;max-height:92%;transform:perspective(700px) rotateY(-5deg) rotateZ(-2deg) scale(1.02)}
  .garage-caption{bottom:45px;left:20px;right:20px}.garage-caption strong{font-size:23px}.garage-caption .paint-chip{font-size:8px;padding:7px}
  .back-home{right:20px;bottom:12px;pointer-events:auto}
  .playing .layout{padding:0}.playing .stage{inset:0;height:100%;opacity:1;pointer-events:auto}.playing .road{width:78%;min-width:195px}
@@ -137,7 +137,7 @@ button{font:inherit;cursor:pointer}button:focus-visible{outline:2px solid var(--
     <path id="roadLights" class="lights" d="M17 9 Q24 5 30 8 L28 14 L16 15Z M60 8 Q67 5 73 9 L74 15 L62 14Z"/><path id="roadTailLights" d="M20 131 L31 135 M59 135 L70 131" stroke="#c53d33" stroke-width="4" stroke-linecap="round"/>
    </svg></div>
   </div>
-  <div class="panel"><small id="metric">RECORDE LOCAL</small><strong id="score">000000</strong><small id="status">PRONTO PARA A PISTA</small></div><div class="hud" id="hud">MOTOR FRIO · PISTA LIVRE</div><div class="toast" id="toast">NITRO ATIVADO</div>
+  <div class="panel" id="racePanel"><small id="metric">RECORDE LOCAL</small><strong id="score">000000</strong><small id="status">PRONTO PARA A PISTA</small></div><div class="hud" id="hud">MOTOR FRIO · PISTA LIVRE</div><div class="toast" id="toast">NITRO ATIVADO</div>
   <div class="mobile-controls"><button id="left" type="button" aria-label="Virar à esquerda">←</button><button id="nitro" type="button" aria-label="Ativar nitro">⚡</button><button id="right" type="button" aria-label="Virar à direita">→</button></div>
  </section>
 </main>
