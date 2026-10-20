@@ -215,7 +215,7 @@ function spawnTraffic(){
  const lane=candidates[Math.floor(Math.random()*candidates.length)];
  const traffic=document.createElement('div');traffic.className='traffic';traffic.dataset.obstacle='moving';
  traffic.style.left=lane+'%';traffic.style.background=['#d64c3d','#e8e4d5','#4c91b2','#c4a05a'][Math.floor(Math.random()*4)];
- traffic.style.animationDuration=(3.2+Math.random()*1.1/Math.max(1,speed))+'s';
+ traffic.style.animationDuration=Math.max(1.7,(3.2+Math.random()*1.1)/Math.max(1,speed))+'s';
  road.appendChild(traffic);
  traffic.addEventListener('animationend',()=>traffic.remove(),{once:true});
  return true;
