@@ -88,6 +88,49 @@ button{font:inherit;cursor:pointer}button:focus-visible{outline:2px solid var(--
 }
 @media(max-height:650px) and (min-width:681px){.home-screen{padding-top:90px;padding-bottom:15px}.home h1{font-size:clamp(68px,8vw,110px);margin:18px 0}.hero-visual{height:60vh;min-height:300px}.layout{padding-top:85px;padding-bottom:10px}.stage{height:60vh;min-height:320px}.copy h2{font-size:40px}.label{margin:14px 0 8px}.actions{margin-top:14px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:3s!important;transition:none!important}}
+
+/* VISUAL PASS 02 — atmosfera, materiais e leitura de pista */
+.shell{background:radial-gradient(ellipse at 52% 44%,#29352e 0,#171e1a 38%,#0c100f 78%);}
+/* Fine grain and soft lighting add depth without covering controls. */
+.shell:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 48%,transparent 34%,#0204038c 100%),repeating-linear-gradient(0deg,#ffffff03 0 1px,transparent 1px 4px);mix-blend-mode:screen;opacity:.38}
+.hero-visual:after{content:"";position:absolute;width:min(44vw,480px);height:42px;bottom:9%;border-radius:50%;background:#000b;filter:blur(23px);transform:rotate(-8deg);pointer-events:none}
+.hero-orbit{border-color:#d7f36a35;box-shadow:0 0 100px #d7f36a10,inset 0 0 70px #d7f36a0b}
+.hero-track{background:linear-gradient(90deg,transparent 0 9%,#d7f36a1b 9.2% 9.5%,#202723 9.5% 90.5%,#d7f36a1b 90.5% 90.8%,transparent 91%);filter:drop-shadow(0 0 18px #0009)}
+.hero-car{filter:drop-shadow(22px 32px 20px #000c) drop-shadow(0 0 14px #d7f36a0b)}
+.hero-car:before{background:linear-gradient(112deg,#ffffff4a 0%,#ffffff0a 18%,transparent 34% 57%,#0009 82%,#ffffff14 100%),linear-gradient(180deg,#ffffff12,transparent 24% 70%,#0005),var(--paint);box-shadow:inset 7px 0 12px #fff2,inset -10px -8px 18px #0007}
+.hero-car:after{background:linear-gradient(135deg,#b4d0ce,#415956 30%,#172321 70%,#090e0d);box-shadow:inset 0 0 0 2px #dbe4d344,0 5px 14px #0008}
+.hero-wheel{box-shadow:inset 0 0 0 3px #090b0a,0 4px 9px #000b;border-radius:9px}
+.garage-car{filter:drop-shadow(0 24px 20px #000c) drop-shadow(0 0 22px #d7f36a0c)}
+.garage-car .body-paint{stroke:#f8fff5d9;stroke-width:2.5}
+.garage-car .glass{stroke:#080d0c;stroke-width:8}
+.garage-car .glass-highlight{stroke:#e9fff14d;stroke-width:5}
+.garage-car .wheel{filter:drop-shadow(0 5px 4px #000a)}
+.garage-car .rim{fill:#c0c8bf;stroke:#171d19;stroke-width:5}
+.garage-car .rim-spoke{stroke:#4a544c;stroke-width:3.5}
+.garage-stage{background:radial-gradient(ellipse at 50% 60%,#d7f36a10 0,transparent 43%),linear-gradient(145deg,#1b221e,#101412 72%);border-color:#ffffff24}
+.garage-stage:after{content:"";position:absolute;left:12%;right:12%;bottom:17%;height:1px;background:linear-gradient(90deg,transparent,#d7f36a55,transparent);box-shadow:0 0 26px #d7f36a22;pointer-events:none}
+.road{background:radial-gradient(ellipse at 50% 78%,#59615a20,transparent 52%),repeating-linear-gradient(0deg,#292f2c 0 58px,#303632 58px 60px,#252b28 60px 120px);border-left:4px solid #a2aaa0;border-right:4px solid #a2aaa0;box-shadow:0 0 100px #000b,inset 0 0 46px #0008,inset 9px 0 12px #ffffff09,inset -9px 0 12px #ffffff09}
+.road:before,.road:after{filter:drop-shadow(0 0 5px #f6f3dd50)}
+.carart{filter:drop-shadow(0 8px 5px #000c) drop-shadow(0 0 8px color-mix(in srgb,var(--paint) 18%,transparent))}
+.carart svg{overflow:visible}
+.carart .body-paint{stroke:#ffffffd1;stroke-width:1.8}
+.carart .glass{fill:#304847;stroke:#080d0c;stroke-width:4.5}
+.carart .tire{stroke:#5a625b;stroke-width:2.5}
+.traffic{filter:drop-shadow(0 7px 5px #000b)}
+.hud,.race-hud{backdrop-filter:blur(10px);background:#101613d9;border-color:#ffffff2b}
+.primary{box-shadow:0 8px 28px #d7f36a1a,inset 0 1px #ffffff80;transition:transform .18s,box-shadow .18s,filter .18s}
+.primary:hover{transform:translateY(-2px);box-shadow:0 12px 34px #d7f36a25,inset 0 1px #ffffffa6;filter:brightness(1.05)}
+.secondary,.sound,.car-choice,.swatch{transition:border-color .18s,background .18s,transform .18s}
+.car-choice:hover{transform:translateY(-1px);border-color:#d7f36a70}
+.swatch:hover{transform:scale(1.08)}
+@media(max-width:700px){
+ .hero-visual:after{width:65vw;bottom:6%;height:28px}
+ .hero-car{filter:drop-shadow(13px 24px 15px #000c)}
+ .garage-car{filter:drop-shadow(0 18px 14px #000c)}
+ .road{background:radial-gradient(ellipse at 50% 78%,#59615a1c,transparent 52%),repeating-linear-gradient(0deg,#292f2c 0 58px,#303632 58px 60px,#252b28 60px 120px)}
+}
+@media(prefers-reduced-motion:reduce){.primary:hover,.car-choice:hover,.swatch:hover{transform:none}}
+
 </style>
 </head>
 <body>
