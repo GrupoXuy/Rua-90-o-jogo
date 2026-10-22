@@ -1,0 +1,59 @@
+name: Rua 90 — validação automática
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rua90-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Install browser test dependency
+        run: |
+          npm init -y
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Start static server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/rua90-http.log 2>&1 &
+          echo $! > /tmp/rua90-http.pid
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/rua90-http.log
+          exit 1
+
+      - name: Run browser smoke tests
+        run: node .github/scripts/rua90-smoke.cjs
+
+      - name: Upload browser screenshot
+        if: always()
+        uses: actions/upload-artifact@ea4a5b8b8a9a1e7e9c5b9e1b1e4b4f8b6a3f4f1a # pinned action revision
+        with:
+          name: rua90-browser-screenshot
+          path: artifacts/
+          if-no-files-found: ignore
+          retention-days: 7
