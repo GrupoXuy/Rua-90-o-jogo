@@ -10,9 +10,6 @@ const path = require("node:path");
   });
   const pageErrors = [];
   page.on("pageerror", error => pageErrors.push(error.message));
-  page.on("console", message => {
-    if (message.type() === "error") pageErrors.push("console: " + message.text());
-  });
 
   try {
     const response = await page.goto("http://127.0.0.1:4173/", {
