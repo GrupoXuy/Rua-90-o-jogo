@@ -12,11 +12,28 @@ const html = fs.readFileSync("index.html", "utf8");
 const outputDir = path.resolve("artifacts/browser-review");
 fs.mkdirSync(outputDir, { recursive: true });
 
+const staticRoot = path.resolve(process.cwd());
+const mimeTypes = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".glb": "model/gltf-binary",
+  ".gltf": "model/gltf+json",
+  ".bin": "application/octet-stream",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".webp": "image/webp"
+};
 const server = http.createServer((req, res) => {
-  const pathname = new URL(req.url ?? "/", "http://127.0.0.1").pathname;
-  if (pathname === "/" || pathname === "/index.html") {
-    res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
-    res.end(html);
+  let pathname;
+  try {
+    pathname = decodeURIComponent(new URL(req.url ?? "/", "http://127.0.0.1").pathname);
+  } catch {
+    res.writeHead(400);
+    res.end("Bad request");
     return;
   }
   if (pathname === "/favicon.ico") {
@@ -24,8 +41,28 @@ const server = http.createServer((req, res) => {
     res.end();
     return;
   }
-  res.writeHead(404);
-  res.end("Not found");
+  const requestedPath = pathname === "/" ? "/index.html" : pathname;
+  const filePath = path.resolve(staticRoot, "." + requestedPath);
+  if (filePath !== staticRoot && !filePath.startsWith(staticRoot + path.sep)) {
+    res.writeHead(403);
+    res.end("Forbidden");
+    return;
+  }
+  let data;
+  try {
+    if (!fs.statSync(filePath).isFile()) throw new Error("Not a file");
+    data = fs.readFileSync(filePath);
+  } catch {
+    res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+    res.end("Not found");
+    return;
+  }
+  res.writeHead(200, {
+    "content-type": mimeTypes[path.extname(filePath).toLowerCase()] ?? "application/octet-stream",
+    "cache-control": "no-store",
+    "content-length": data.length
+  });
+  res.end(data);
 });
 await new Promise((resolve, reject) => {
   server.once("error", reject);
@@ -37,6 +74,8 @@ const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] }
 const failures = [];
 const report = [];
 const legacyArchitecture = html.includes('id="homeScreen"') && html.includes('id="garageStage"');
+const threeDArchitecture = /<script[^>]+src=["'][^"']*garage3d\.(?:mjs|js)/i.test(html) ||
+  /__g3dCar|garage3d|broker\.emqx\.io/i.test(html);
 const reactArchitecture = html.includes('id="root"') && /<script[^>]+type="module"/i.test(html);
 if (!reactArchitecture && !legacyArchitecture) {
   throw new Error("Sem suíte de navegador específica para a arquitetura encontrada; não executar smoke test genérico como aprovação.");
@@ -65,6 +104,19 @@ try {
       assert.equal(await page.locator("#root").isVisible(), true, viewport.name + ": ponto de montagem não está visível");
       assert.equal(await page.locator(".menu-content").isVisible(), true, viewport.name + ": menu inicial não está visível");
       assert.equal(await page.locator(".garage").isVisible(), true, viewport.name + ": garagem não está visível");
+      if (threeDArchitecture && viewport.width >= 900) {
+        await page.waitForFunction(() => {
+          const canvas = document.querySelector("#g3d");
+          return canvas && getComputedStyle(canvas).display !== "none" && canvas.width > 0 && canvas.height > 0;
+        }, { timeout: 15000 });
+        const modelResponses = [];
+        page.on("response", response => {
+          if (/\.glb(?:\?|$)/i.test(response.url())) modelResponses.push({ url: response.url(), status: response.status() });
+        });
+        await page.waitForTimeout(2500);
+        const failedModels = modelResponses.filter(item => item.status >= 400);
+        assert.deepEqual(failedModels, [], viewport.name + ": falha ao carregar modelos GLB: " + JSON.stringify(failedModels));
+      }
       assert.equal(await page.locator(".car-option").count(), 5, viewport.name + ": devem existir cinco opções de carro");
       assert.ok(await page.locator(".color-swatch").count() >= 5, viewport.name + ": opções de pintura insuficientes");
       await page.screenshot({ path: path.join(outputDir, viewport.name + "-home.png"), fullPage: true });
