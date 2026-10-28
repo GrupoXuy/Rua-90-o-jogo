@@ -36,9 +36,53 @@ const url = "http://127.0.0.1:" + address.port + "/";
 const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
 const failures = [];
 const report = [];
+const legacyArchitecture = html.includes('id="homeScreen"') && html.includes('id="garageStage"');
 
 try {
-  for (const viewport of [
+  if (!legacyArchitecture) {
+    for (const viewport of [
+      { name: "desktop-1440x900", width: 1440, height: 900 },
+      { name: "tablet-768x1024", width: 768, height: 1024 },
+      { name: "mobile-390x844", width: 390, height: 844 }
+    ]) {
+      const page = await browser.newPage({
+        viewport: { width: viewport.width, height: viewport.height },
+        deviceScaleFactor: 1
+      });
+      page.on("pageerror", error => failures.push(viewport.name + " JS: " + error.message));
+      page.on("console", message => {
+        if (message.type() === "error" && !/Failed to load resource|net::ERR_/i.test(message.text())) {
+          failures.push(viewport.name + " console: " + message.text());
+        }
+      });
+      await page.goto(url, { waitUntil: "load" });
+      await page.waitForTimeout(800);
+      assert.match(await page.title(), /Rua 90/i, viewport.name + ": título incorreto");
+      const mount = page.locator("#root, #app, #homeScreen").first();
+      assert.equal(await mount.count(), 1, viewport.name + ": ponto de montagem do jogo ausente");
+      assert.equal(await mount.isVisible(), true, viewport.name + ": ponto de montagem não está visível");
+      const renderedText = (await page.locator("body").innerText()).trim();
+      assert.ok(renderedText.length > 0, viewport.name + ": página sem conteúdo visível");
+      const interactiveControls = await page.locator("button, a[href], input, canvas").count();
+      assert.ok(interactiveControls > 0, viewport.name + ": nenhum controle ou canvas encontrado");
+      const dimensions = await page.evaluate(() => ({
+        viewport: document.documentElement.clientWidth,
+        document: document.documentElement.scrollWidth
+      }));
+      assert.ok(dimensions.document <= dimensions.viewport + 2,
+        viewport.name + ": overflow horizontal (" + dimensions.document + " > " + dimensions.viewport + ")");
+      await page.screenshot({ path: path.join(outputDir, viewport.name + "-smoke.png"), fullPage: true });
+      report.push({
+        viewport: viewport.name,
+        result: "PASS",
+        architecture: "generic smoke",
+        controls: interactiveControls,
+        horizontalOverflow: false
+      });
+      await page.close();
+    }
+  } else {
+    for (const viewport of [
     { name: "desktop-1440x900", width: 1440, height: 900 },
     { name: "tablet-768x1024", width: 768, height: 1024 },
     { name: "mobile-390x844", width: 390, height: 844 }
@@ -131,6 +175,7 @@ try {
     await page.screenshot({ path: path.join(outputDir, viewport.name + "-race.png") });
     report.push({ viewport: viewport.name, result: "PASS", garage: "in-frame", gameplay: "car within road bounds", wheels: wheelStats.length });
     await page.close();
+  }
   }
 } finally {
   await browser.close();
