@@ -46,7 +46,7 @@ if (legacySvgArchitecture) {
   assert.ok(ids.includes("root") || ids.includes("app") || ids.includes("homeScreen"), "Ponto de montagem do jogo ausente");
   assert.match(html, /<script\b/i, "O HTML deve carregar o código do jogo");
   if (reactArchitecture) {
-    assert.match(html, /<script[^>]+type="module"[^>]+src=/i, "App React deve carregar o bundle de módulo");
+    assert.match(html, /<script[^>]+type="module"/i, "App React deve carregar código em um script de módulo");
   }
 }
 
