@@ -94,7 +94,7 @@ try {
       });
       const modelResponses = [];
       page.on("response", response => {
-        if (/\\.glb(?:\\?|$)/i.test(response.url())) modelResponses.push({ url: response.url(), status: response.status() });
+        if (/\.glb(?:\?|$)/i.test(response.url())) modelResponses.push({ url: response.url(), status: response.status() });
       });
       page.on("pageerror", error => failures.push(viewport.name + " JS: " + error.message));
       page.on("console", message => {
@@ -114,7 +114,7 @@ try {
           return canvas && getComputedStyle(canvas).display !== "none" && canvas.width > 0 && canvas.height > 0;
         }, null, { timeout: 15000 });
         await page.waitForFunction(() => performance.getEntriesByType("resource")
-          .filter(entry => /\\.glb(?:\\?|$)/i.test(entry.name)).length >= 5, null, { timeout: 20000 });
+          .filter(entry => /\.glb(?:\?|$)/i.test(entry.name)).length >= 5, null, { timeout: 20000 });
         const failedModels = modelResponses.filter(item => item.status >= 400);
         assert.deepEqual(failedModels, [], viewport.name + ": falha ao carregar modelos GLB: " + JSON.stringify(failedModels));
         assert.ok(modelResponses.length >= 5, viewport.name + ": a garagem 3D não carregou os cinco modelos GLB");
