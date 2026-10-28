@@ -113,10 +113,11 @@ try {
           const canvas = document.querySelector("#g3d");
           return canvas && getComputedStyle(canvas).display !== "none" && canvas.width > 0 && canvas.height > 0;
         }, null, { timeout: 15000 });
-        await page.waitForTimeout(2500);
+        await page.waitForFunction(() => performance.getEntriesByType("resource")
+          .filter(entry => /\\.glb(?:\\?|$)/i.test(entry.name)).length >= 5, null, { timeout: 20000 });
         const failedModels = modelResponses.filter(item => item.status >= 400);
         assert.deepEqual(failedModels, [], viewport.name + ": falha ao carregar modelos GLB: " + JSON.stringify(failedModels));
-        assert.ok(modelResponses.length >= 1, viewport.name + ": nenhum modelo GLB foi requisitado pela garagem 3D");
+        assert.ok(modelResponses.length >= 5, viewport.name + ": a garagem 3D não carregou os cinco modelos GLB");
       }
       assert.equal(await page.locator(".car-option").count(), 5, viewport.name + ": devem existir cinco opções de carro");
       assert.ok(await page.locator(".color-swatch").count() >= 5, viewport.name + ": opções de pintura insuficientes");
