@@ -37,9 +37,13 @@ const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] }
 const failures = [];
 const report = [];
 const legacyArchitecture = html.includes('id="homeScreen"') && html.includes('id="garageStage"');
+const reactArchitecture = html.includes('id="root"') && /<script[^>]+type="module"/i.test(html);
+if (!reactArchitecture && !legacyArchitecture) {
+  throw new Error("Sem suíte de navegador específica para a arquitetura encontrada; não executar smoke test genérico como aprovação.");
+}
 
 try {
-  if (!legacyArchitecture) {
+  if (reactArchitecture) {
     for (const viewport of [
       { name: "desktop-1440x900", width: 1440, height: 900 },
       { name: "tablet-768x1024", width: 768, height: 1024 },
@@ -56,32 +60,68 @@ try {
         }
       });
       await page.goto(url, { waitUntil: "load" });
-      await page.waitForTimeout(800);
+      await page.waitForFunction(() => document.querySelector("#root")?.innerText.includes("ESCOLHER MODO"));
       assert.match(await page.title(), /Rua 90/i, viewport.name + ": título incorreto");
-      const mount = page.locator("#root, #app, #homeScreen").first();
-      assert.equal(await mount.count(), 1, viewport.name + ": ponto de montagem do jogo ausente");
-      assert.equal(await mount.isVisible(), true, viewport.name + ": ponto de montagem não está visível");
-      const renderedText = (await page.locator("body").innerText()).trim();
-      assert.ok(renderedText.length > 0, viewport.name + ": página sem conteúdo visível");
-      const interactiveControls = await page.locator("button, a[href], input, canvas").count();
-      assert.ok(interactiveControls > 0, viewport.name + ": nenhum controle ou canvas encontrado");
+      assert.equal(await page.locator("#root").isVisible(), true, viewport.name + ": ponto de montagem não está visível");
+      assert.equal(await page.locator(".menu-content").isVisible(), true, viewport.name + ": menu inicial não está visível");
+      assert.equal(await page.locator(".garage").isVisible(), true, viewport.name + ": garagem não está visível");
+      assert.equal(await page.locator(".car-option").count(), 5, viewport.name + ": devem existir cinco opções de carro");
+      assert.ok(await page.locator(".color-swatch").count() >= 5, viewport.name + ": opções de pintura insuficientes");
+      await page.screenshot({ path: path.join(outputDir, viewport.name + "-home.png"), fullPage: true });
+
+      const chosenCar = page.locator(".chosen-car > strong");
+      const firstCarName = (await chosenCar.innerText()).trim();
+      await page.locator(".car-option").nth(1).click();
+      const secondCarName = (await chosenCar.innerText()).trim();
+      assert.notEqual(secondCarName, firstCarName, viewport.name + ": seleção do carro não atualizou o veículo exibido");
+
+      const colorName = page.locator(".color-name");
+      const firstColorName = (await colorName.innerText()).trim();
+      await page.locator(".color-swatch").nth(1).click();
+      const secondColorName = (await colorName.innerText()).trim();
+      assert.notEqual(secondColorName, firstColorName, viewport.name + ": seleção de pintura não atualizou a cor");
+      assert.equal(await page.locator(".color-swatch.selected").count(), 1, viewport.name + ": pintura selecionada não foi marcada");
+      await page.screenshot({ path: path.join(outputDir, viewport.name + "-garage.png"), fullPage: true });
+
       const dimensions = await page.evaluate(() => ({
         viewport: document.documentElement.clientWidth,
         document: document.documentElement.scrollWidth
       }));
       assert.ok(dimensions.document <= dimensions.viewport + 2,
         viewport.name + ": overflow horizontal (" + dimensions.document + " > " + dimensions.viewport + ")");
-      await page.screenshot({ path: path.join(outputDir, viewport.name + "-smoke.png"), fullPage: true });
+
+      await page.getByRole("button", { name: /ESCOLHER MODO/i }).click();
+      assert.equal(await page.locator(".mode-overlay").isVisible(), true, viewport.name + ": seletor de modo não abriu");
+      assert.ok(await page.locator(".mode-card").count() >= 3, viewport.name + ": opções de modo insuficientes");
+      await page.locator(".mode-card").first().click();
+      const startButton = page.locator(".mode-overlay .primary-button");
+      assert.match((await startButton.innerText()).trim(), /^CORRER\b/i, viewport.name + ": botão de início não está disponível");
+      await startButton.click();
+      const pauseButton = page.locator('button[aria-label="Pausar"]');
+      await pauseButton.waitFor({ state: "visible", timeout: 5000 });
+      for (const label of ["PONTUAÇÃO", "ULTRAPASSAGENS", "DISTÂNCIA"]) {
+        assert.ok((await page.locator("body").innerText()).includes(label), viewport.name + ": HUD sem indicador " + label);
+      }
+      await page.screenshot({ path: path.join(outputDir, viewport.name + "-gameplay.png"), fullPage: true });
+
+      await pauseButton.click();
+      assert.equal(await page.getByRole("heading", { name: /PAUSA/i }).isVisible(), true, viewport.name + ": pausa não abriu");
+      await page.getByRole("button", { name: /CONTINUAR/i }).click();
+      await page.locator('button[aria-label="Pausar"]').waitFor({ state: "visible", timeout: 5000 });
       report.push({
         viewport: viewport.name,
         result: "PASS",
-        architecture: "generic smoke",
-        controls: interactiveControls,
+        architecture: "React",
+        cars: 5,
+        paintingSelection: "PASS",
+        modeSelection: "PASS",
+        gameplayHud: "PASS",
+        pauseResume: "PASS",
         horizontalOverflow: false
       });
       await page.close();
     }
-  } else {
+  } else if (legacyArchitecture) {
     for (const viewport of [
     { name: "desktop-1440x900", width: 1440, height: 900 },
     { name: "tablet-768x1024", width: 768, height: 1024 },
