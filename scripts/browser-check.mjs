@@ -86,7 +86,7 @@ try {
     assert.equal(new Set(modelDetails).size, 5, viewport.name + ": modelos devem ter desenho de faróis próprio");
     assert.equal(new Set(raceSilhouettes).size, 5, viewport.name + ": modelos devem ter silhuetas próprias durante a corrida");
     await page.locator('[data-car="1"]').click();
-    assert.equal((await page.locator("#selectedName").textContent()).trim(), "OPALA", viewport.name + ": seleção do carro não atualizou o modelo");
+    assert.equal((await page.locator("#selectedName").textContent()).trim(), "SEDÃ CLÁSSICO", viewport.name + ": seleção do carro não atualizou o modelo");
     assert.equal(await page.locator("#racePanel").isVisible(), false, viewport.name + ": HUD de corrida não deve aparecer na garagem");
     assert.equal(await page.locator("#hud").isVisible(), false, viewport.name + ": texto de gameplay não deve aparecer na garagem");
     await page.screenshot({ path: path.join(outputDir, viewport.name + "-garage.png") });
